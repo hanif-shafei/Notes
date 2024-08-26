@@ -18,7 +18,7 @@ AWS (Amazon Web Services) provides a range of cloud services, including servers,
 
 ### Common Terminology
 
-- **Instance**: A virtual server created in the cloud, not tied to physical hardware.
+- **Instance**: A virtual server created in the cloud, not tied to physical hardware. It's an instance created inside a physical server.
 - **Region**: The geographical area where AWS data centers are located.
 - **AZ (Availability Zone)**: A specific physical data center within a region.
 - **AMI (Amazon Machine Image)**: A pre-configured template containing software, OS, and configurations needed to launch an instance.
