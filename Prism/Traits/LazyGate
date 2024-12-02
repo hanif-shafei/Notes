@@ -1,105 +1,28 @@
-### **LazyGate Trait Usage Documentation**
+### **LazyGate Trait**  
 
-The `LazyGate` trait provides a utility to programmatically authenticate a user by their ID based on a "gatekeeper" query parameter in the request. This allows bypassing the traditional login process for specific testing or controlled scenarios.
+The `LazyGate` trait allows you to programmatically log in a user by their ID, bypassing traditional authentication. This is useful for testing or controlled scenarios.  
 
 ---
 
-### **Trait Declaration**
+### **Using LazyGate**
+
+#### **Step 1: Add the Trait**  
+Include the `LazyGate` trait in the controller where you want to use it.  
 
 ```php
-<?php
+use App\Controller\Traits\LazyGate;
 
-namespace App\Controller\Traits;
-
-use App\Entity\AppUser;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
-
-trait LazyGate
+class SecurityController extends AbstractController
 {
-    public function __construct(
-        protected TokenStorageInterface $tokenStorage
-    ) {}
-
-    public function lazyGatekeeper(
-        Request $request,
-        AppUser $user,
-        string $expectedGate = 'lazygate',
-        string $firewallName = 'dev'
-    ): bool {
-        $gatekeeperParam = $request->query->get('gatekeeper');
-
-        if (!$gatekeeperParam) {
-            return false;
-        }
-
-        if ($gatekeeperParam !== $expectedGate) {
-            throw new \InvalidArgumentException('Invalid gatekeeper value provided.');
-        }
-
-        $token = new UsernamePasswordToken($user, $firewallName, $user->getRoles());
-        $this->tokenStorage->setToken($token);
-
-        $session = $request->getSession();
-        $session->set('_security_' . $firewallName, serialize($token));
-        $session->save();
-
-        return true;
-    }
+    use LazyGate;
 }
 ```
 
 ---
 
-### **Setup**
+#### **Step 2: Authenticate a User**
 
-1. **Import the Trait in a Controller:**
-
-   Include the `LazyGate` trait in any controller where you need the functionality.
-
-   ```php
-   <?php
-
-   namespace App\Controller;
-
-   use App\Controller\Traits\LazyGate;
-   use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-
-   class SecurityController extends AbstractController
-   {
-       use LazyGate;
-   }
-   ```
-
-2. **Inject Dependencies:**
-
-   Ensure the `TokenStorageInterface` dependency is correctly injected into the controller or service where the trait is used.
-
----
-
-### **Method Arguments**
-
-| Parameter       | Type                         | Description                                                                                     |
-|-----------------|------------------------------|-------------------------------------------------------------------------------------------------|
-| `$request`      | `Symfony\Component\HttpFoundation\Request` | The current HTTP request.                                                                      |
-| `$user`         | `App\Entity\AppUser`         | The user entity to authenticate.                                                              |
-| `$expectedGate` | `string`                     | The expected value of the `gatekeeper` query parameter. Default is `'lazygate'`.               |
-| `$firewallName` | `string`                     | The name of the security firewall context. Default is `'dev'`.                                 |
-
----
-
-### **Return Value**
-
-| Type     | Description                                                                                     |
-|----------|-------------------------------------------------------------------------------------------------|
-| `bool`   | Returns `true` if the user was successfully logged in, `false` if the gatekeeper parameter is missing or invalid.|
-
----
-
-### **Example Usage**
-
-#### **Controller Example:**
+Use the `lazyGatekeeper` method to programmatically log in a user.  
 
 ```php
 #[Route('/test-login', name: 'test_login')]
@@ -107,63 +30,55 @@ public function testLogin(Request $request): Response
 {
     $user = $this->getDoctrine()->getRepository(AppUser::class)->find(37667);
 
-    if ($this->lazyGatekeeper($request, $user, expectedGate: 'testgate', firewallName: 'main')) {
-        // Successful login, redirect to the dashboard
+    if ($this->lazyGatekeeper($request, $user, expectedGate: 'testgate')) {
+        // Login successful, redirect as needed
         return $this->redirectToRoute('dashboard');
     }
 
-    // Gatekeeper validation failed, redirect to an error page
+    // Handle failed authentication
     return $this->redirectToRoute('error_page');
 }
 ```
 
 ---
 
-#### **Request Example:**
+#### **Step 3: Pass the Gatekeeper Check**
 
-To invoke the `lazyGatekeeper`:
+Make a request to the route with the correct `gatekeeper` parameter.  
 
-- **URL Format:**  
-  `https://yourdomain.com/test-login?gatekeeper=testgate`
+**Example Request**  
 
-- **Behavior:**  
-  - If the `gatekeeper` parameter matches the expected value (`testgate`), the specified user is authenticated and logged in.
-  - If the parameter is missing or invalid, the method returns `false`.
-
----
-
-### **Error Handling**
-
-- **Missing `gatekeeper` Parameter:**  
-  If the request does not include a `gatekeeper` query parameter, the method returns `false`.
-
-- **Invalid `gatekeeper` Value:**  
-  If the value of the `gatekeeper` query parameter does not match the expected value, an `InvalidArgumentException` is thrown.
+```plaintext
+GET /test-login?gatekeeper=testgate
+```
 
 ---
 
-### **Customizing Gatekeeper and Firewall**
+### **Customizing LazyGate**
 
-- **Change Expected Gatekeeper:**  
-  Pass a custom value for `$expectedGate` to allow different gatekeeper values for different scenarios.
+#### **Change the Gatekeeper Value**  
 
-  ```php
-  $this->lazyGatekeeper($request, $user, expectedGate: 'customgate');
-  ```
+Modify the expected `gatekeeper` value for additional security or use case flexibility.  
 
-- **Change Firewall Context:**  
-  Specify a different firewall context using `$firewallName`.
-
-  ```php
-  $this->lazyGatekeeper($request, $user, firewallName: 'secure_area');
-  ```
+```php
+$this->lazyGatekeeper($request, $user, expectedGate: 'customgate');
+```
 
 ---
 
-### **Testing Tips**
+#### **Change the Firewall Context**  
 
-- **Testing Environment:**  
-  Use the `lazyGatekeeper` feature in non-production environments to simulate user logins without requiring password authentication.
+Switch the firewall context for authentication.  
 
-- **Access Control:**  
-  Ensure proper validation to prevent unauthorized use of this mechanism. Avoid exposing it in production or under conditions where it can be misused.
+```php
+$this->lazyGatekeeper($request, $user, firewallName: 'secure_area');
+```
+
+---
+
+### **Notes**  
+
+- This trait is ideal for **testing purposes** or restricted environments.  
+- Always ensure it’s used in **controlled contexts**. Disable it in production environments if not necessary.  
+
+**Happy coding!**
