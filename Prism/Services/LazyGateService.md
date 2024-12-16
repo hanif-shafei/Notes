@@ -15,6 +15,7 @@ public function lazyGatekeeper(
     string $gatekeeper = 'lazygate',
     string $firewallName = 'dev'
 ): bool;
+
 ```
 
 #### Parameters:
@@ -40,8 +41,6 @@ You can use `LazyGateService` in a controller to log in a user programmatically.
 Don't foreget to import it at the top: `use App\Service\LazyGateService`.
 
 ```php
-<?php
-
 namespace App\Controller;
 
 use App\Service\LazyGateService;
@@ -49,7 +48,7 @@ use App\Service\LazyGateService;
 class SecurityController extends AbstractController
 {
     public function __construct( private LazyGateService $lazyGateService ) {}
-}
+
 ```
 
 #### **Step 2: Authenticate a User**
@@ -57,8 +56,6 @@ class SecurityController extends AbstractController
 Use the `lazyGatekeeper` method to programmatically log in a user.  
 
 ```php
-<?php
-
 namespace App\Controller;
 
 use App\Service\LazyGateService;
@@ -86,9 +83,6 @@ class SecurityController extends AbstractController
         }
 
         // ...
-    }
-
-}
 
 ```
 
