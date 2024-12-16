@@ -58,6 +58,7 @@ Use the `lazyGatekeeper` method to programmatically log in a user.
 ```php
 namespace App\Controller;
 
+use App\Entity\AppUser;
 use App\Service\LazyGateService;
 use Doctrine\ORM\EntityManagerInterface;
 
