@@ -1,6 +1,6 @@
 ### **LazyGate Trait**  
 
-The `LazyGate` trait allows you to programmatically log in a user by their ID, bypassing traditional authentication. This is useful for testing or controlled scenarios.  
+The `LazyGate` trait allows you to programmatically authenticate a user by their ID based on a "gatekeeper" query parameter in the request, bypassing traditional authentication. This is useful for testing or controlled scenarios.
 
 ---
 
@@ -82,3 +82,35 @@ $this->lazyGatekeeper($request, $user, firewallName: 'secure_area');
 - Always ensure it’s used in **controlled contexts**. Disable it in production environments if not necessary.  
 
 **Happy coding!**
+
+
+
+
+
+
+Sending Notifications
+Using the Notifiable Trait
+Notifications may be sent in two ways: using the notify method of the Notifiable trait or using the Notification facade. The Notifiable trait is included on your application's App\Models\User model by default:
+
+<?php
+ 
+namespace App\Models;
+ 
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+ 
+class User extends Authenticatable
+{
+    use Notifiable;
+}
+
+The notify method that is provided by this trait expects to receive a notification instance:
+
+use App\Notifications\InvoicePaid;
+ 
+$user->notify(new InvoicePaid($invoice));
+
+Remember, you may use the Notifiable trait on any of your models. You are not limited to only including it on your User model.
+
+Using the Notification Facade
+Alternatively, you may send notifications via the Notification facade. This approach is useful when you need to send a notification to multiple notifiable
