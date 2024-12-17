@@ -161,8 +161,6 @@ When you switch from using the Request session to SessionInterface, you're shift
 
     ```
 
-        **Why Change?**: By switching to `SessionInterface`, you decouple the session handling from the `Request` object, making it more flexible and maintainable. You no longer rely on the request’s session state, but rather use the session as an explicit service injected into your class. This change also allows easier testing and works seamlessly in scenarios where direct access to the request object might not be available (such as in some command-line tasks or background processes).
-
 ### 2. Modify `services.yaml` for Dependency Injection
 
 To inject the `SessionInterface` into `LazyGateService`, you need to update the `services.yaml` configuration. Locate your service definition in `config/services.yaml` (or wherever your services are defined) and make the following changes:
@@ -184,6 +182,8 @@ To inject the `SessionInterface` into `LazyGateService`, you need to update the 
 - **Ensure the Correct Service Alias**
     
     Ensure that the `@session` alias points to the correct service. In Symfony, `@session` is a predefined alias for the session service that implements `SessionInterface`. It should work out of the box in most Symfony configurations.
+
+> **Why Change?** : By switching to `SessionInterface`, you decouple the session handling from the `Request` object, making it more flexible and maintainable. You no longer rely on the request’s session state, but rather use the session as an explicit service injected into your class. This change also allows easier testing and works seamlessly in scenarios where direct access to the request object might not be available (such as in some command-line tasks or background processes).
 
 # Troubleshooting
 
